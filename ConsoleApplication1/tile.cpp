@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <string>
 
 #include "tile.h"
 
@@ -69,6 +70,15 @@ int Tile::returnRow()
 int Tile::returnNeighborCount()
 {
 	return this->_neighborCount;
+}
+
+string Tile::returnTile()
+{
+	if (this->isRevealed() && this->isMine()) return "M";
+	else if (this->isRevealed())
+		return to_string(this->returnNeighborCount());
+	else if (this->isFlagged()) return "F";				// Flag
+	else return "C";									// Covered
 }
 
 // set series

@@ -1,51 +1,54 @@
-// ConsoleApplication1.cpp : Defines the entry point for the console application.
-//
-
-#include "stdafx.h"
-
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <algorithm>
 #include <iterator>
 #include <vector>
-#include <boost/algorithm/string.hpp>
 
 #include "minesweeper.h"
+#include "server.h"
+#include "json.hpp"
 
-void readScript(string* command, int* col, int* row, MineSweeper* m)
+using namespace std;
+using json = nlohmann::json;
+
+void GameLoop(int order, MineSweeper* m)
 {
-	
-	cout << "Input command separated by space: ";
-	std::vector<std::string> tokens;
-	string str;
-	getline(cin, str);
-	boost::split(tokens, str, boost::is_any_of("\t "));
-	/*
-	while (!(cin >> *command) || *command != "D" || *command != "E" || *command != "F")
+	while (!m->returnGameEnd())
 	{
-		cout << "Invaild command" << endl;
-		cout << "Input command: ";
-		cin.clear();
-		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		string command;
+		json orders;
+		int col, row;
+		// clear console
+		system("cls");
+		// mode print
+		switch (order)
+		{
+		case 1:
+			cout << endl << "Beginner Mode" << endl << endl;
+			break;
+		case 2:
+			cout << endl << endl << "Intermediate Mode" << endl << endl;
+			break;
+		case 3:
+			cout << endl << endl << "Expert Mode" << endl << endl;
+			break;
+		case 4:
+			cout << endl << endl << "Custom Mode" << endl << endl;
+		}
+		// print minefield
+		m->printMineField();
+
+		// check win
+		m->checkWin();
+		// if game ended somehow break
+		if (m->returnGameEnd()) {
+			ingameTransfer(&orders, m);
+			break;
+		}
+		// if not read read command
+		ingameTransfer(&orders, m);
 	}
-	cout << "Input col: ";
-	while (!(cin >> *col) || *col >= m.returnCol() || *col < 0)
-	{
-		cout << "Invalid command" << endl; 
-		cout << "Input col: ";
-		cin.clear();
-		cin.ignore(numeric_limits<streamsize>::max(), '\n');
-	}
-	cout << "Input row: ";
-	while (!(cin >> *row) || *row >= m.returnRow() || *row < 0)
-	{
-		cout << "Invalid command" << endl;
-		cout << "Input row: ";
-		cin.clear();
-		cin.ignore(numeric_limits<streamsize>::max(), '\n');
-	}
-	*/
 }
 
 int main()
@@ -58,15 +61,9 @@ int main()
 	k.push_back("any string");
 	cout << "Level 1: Beginner (9x9, 10)" << endl;
 	cout << "Level 2: Intermediate (16x16, 40)" << endl;
-	cout << "Level 3: Expert (16x30, 10)" << endl;	
+	cout << "Level 3: Expert (30x16, 10)" << endl;
 	cout << "Level 4: Custom" << endl;
-	cout << "Input level: ";
-	while (!(cin >> order) || order > 4)
-	{
-		cout << "Input level: ";
-		cin.clear();
-		cin.ignore(numeric_limits<streamsize>::max(), '\n');
-	}
+	startGamefunction(order);
 
 	switch (order)
 	{
@@ -74,7 +71,7 @@ int main()
 		col = 9, row = 9, mineNum = 10;
 		cout << "Beginner Mode" << endl << endl;
 		break;
-	case 2: 
+	case 2:
 		col = 16, row = 16, mineNum = 40;
 		cout << "Intermediate Mode" << endl << endl;
 		break;
@@ -99,57 +96,31 @@ int main()
 	}
 
 	auto minesweeper = MineSweeper(col, row, mineNum);
-	
+
 	cout << "Minefield is generated after the first input" << endl;
 	cout << "command E: open the tile" << endl;
 	cout << "command F: Flag the tile" << endl;
 	cout << "command D: Double cilck a known tile" << endl;
 	cout << "for the first input, it is always command E" << endl;
 
-	cin.ignore();
-	readScript(&command, &col, &row, &minesweeper);
-	
-	minesweeper.createMinefield(col, row);
+	// transfer first script;
+	firstScriptTransfer(col, row, command, &minesweeper);
 
-	while (!minesweeper.returnGameEnd())
+	// loop until the game ends
+	GameLoop(order, &minesweeper);
+
+	minesweeper.printMineField();
+	if (minesweeper.returnWin())
 	{
-		system("cls");
-
-		switch (order)
-		{
-		case 1:
-			cout << endl << endl << "Beginner Mode" << endl << endl;
-			break;
-		case 2:
-			cout << endl << endl << "Intermediate Mode" << endl << endl;
-			break;
-		case 3:
-			cout << endl << endl << "Expert Mode" << endl << endl;
-			break;
-		case 4:
-			cout << endl << endl << "Custom Mode" << endl << endl;
-		}
-
-		minesweeper.printMineField();
-		minesweeper.checkWin();
-		if (minesweeper.returnGameEnd()) break;
-		readScript(&command, &col, &row, &minesweeper);
-		if (command == "E") 
-		{
-			minesweeper.revealTile(col, row);
-		}
-		if (command == "F") 
-		{
-			minesweeper.setFlag(col, row);
-		}
-		if (command == "D") 
-		{ 
-			minesweeper.revealDoubleClick(col, row);
-		}
+		cout << "won!" << endl;
+	}
+	else
+	{
+		cout << "Lost..." << endl;
 	}
 
+	// lastScriptTransfer()
 	system("pause");
 
 	return 0;
 }
-

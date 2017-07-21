@@ -15,6 +15,7 @@ private:
 	Tile** _minefield;
 
 	bool _gameEnd = false;
+	bool _win = false;
 
 public:
 	MineSweeper(int col, int row, int mineNum);
@@ -34,9 +35,12 @@ public:
 
 	void setGameEnd(bool finished);
 	void setFlag(int col, int row);
+	void setWin(bool win);
 
 	bool returnGameEnd();
 	int returnCol();
 	int returnRow();
 	int returnMineNum();
+	bool returnWin();
+	string returnMineState();
 };

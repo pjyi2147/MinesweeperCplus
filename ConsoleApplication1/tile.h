@@ -25,6 +25,7 @@ public:
 	int returnRow();
 	int returnCol();
 	int returnNeighborCount();
+	std::string returnTile();
 
 	void setMine();
 	void setFlag();
