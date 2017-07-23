@@ -119,11 +119,13 @@ void MineSweeper::revealTile(int col, int row)
 {
 
 	this->_minefield[row][col].reveal();
+	// if the revealTile is mine
 	if (this->_minefield[row][col].isMine())
 	{
 		this->setGameEnd(true);
-		this->EndGame(false);
+		this->setWin(false);
 	}
+	// if the neighbor count is == 0
 	if (this->_minefield[row][col].returnNeighborCount() == 0
 		&& !this->_minefield[row][col].isMine())
 	{
@@ -247,7 +249,6 @@ void MineSweeper::EndGame(bool win)
 	{
 		cout << "Lost..." << endl;
 	}
-
 	this->setGameEnd(true);
 }
 
