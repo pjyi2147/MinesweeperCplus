@@ -20,7 +20,7 @@ void GameLoop(int order, MineSweeper* m)
 		json orders;
 		int col, row;
 		// clear console
-		system("cls");
+		system("cls"); 
 		// mode print
 		switch (order)
 		{
@@ -46,8 +46,10 @@ void GameLoop(int order, MineSweeper* m)
 			ingameTransfer(&orders, m);
 			break;
 		}
-		// if not read read command
-		ingameTransfer(&orders, m);
+		// read command
+		if (!m->returnGameEnd() &&
+			!m->returnWin())
+			ingameTransfer(&orders, m);
 	}
 }
 
@@ -105,22 +107,12 @@ int main()
 
 	// transfer first script;
 	firstScriptTransfer(col, row, command, &minesweeper);
-
 	// loop until the game ends
 	GameLoop(order, &minesweeper);
 
-	minesweeper.printMineField();
-	if (minesweeper.returnWin())
-	{
-		cout << "won!" << endl;
-	}
-	else
-	{
-		cout << "Lost..." << endl;
-	}
+	minesweeper.EndGame(minesweeper.returnWin());
 
-	// lastScriptTransfer()
-	system("pause");
+	// system("pause");
 
 	return 0;
 }
